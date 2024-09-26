@@ -36,10 +36,7 @@ while True:
             x, y, w, h = bbox['bbox']
             score = int(bbox['score'][0] * 100)
 
-                # ---- Draw Data  ---- #
-            cv2.circle(img, center, 5, (255, 0, 255), cv2.FILLED)
-            cv2.rectangle(img,(x ,y, w, h),(255,0,255),3)
-
+              # ---- Adding offset to found bounding box ---- #
             offsetW = (offsetWratio/100)*w
 
             x = int(x - offsetW)
@@ -50,7 +47,18 @@ while True:
             y = int(y - offsetH*4)
             h = int(h + offsetH *4.5)
 
+            # ---- Finding Bluriness ---- #
+            
+            imgFace = img[y:y+h,x:x+w]
+            blurValue = int(cv2.Laplacian(imgFace,cv2.CV_64F).var())
+
+            # ---- Drawing ---- #
+
+            cv2.imshow("Face",imgFace)
             cv2.rectangle(img,(x ,y, w, h),(255,0,0),3)
+            cvzone.putTextRect(img,f"Blur:{blurValue}",(x,y+20),2)
+
+
 
 
 
