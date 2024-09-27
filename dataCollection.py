@@ -3,7 +3,8 @@ import cv2
 import cvzone
 
 offsetWratio = 10
-offsetHratio = 10
+offsetHratio = 20
+confidence = 80
     # Initialize the webcam
     # '2' means the third camera connected to the computer, usually 0 refers to the built-in webcam
 cap = cv2.VideoCapture(0)
@@ -36,27 +37,39 @@ while True:
             x, y, w, h = bbox['bbox']
             score = int(bbox['score'][0] * 100)
 
-              # ---- Adding offset to found bounding box ---- #
-            offsetW = (offsetWratio/100)*w
+            # ---- Checking Confidence ---- #
 
-            x = int(x - offsetW)
-            w = int(w + offsetW *2)
+            if score > confidence:
 
-            offsetH = (offsetHratio/100)*h
+                # ---- Adding offset to found bounding box ---- #
+                offsetW = (offsetWratio/100)*w
 
-            y = int(y - offsetH*4)
-            h = int(h + offsetH *4.5)
+                x = int(x - offsetW)
+                w = int(w + offsetW *2)
 
-            # ---- Finding Bluriness ---- #
-            
-            imgFace = img[y:y+h,x:x+w]
-            blurValue = int(cv2.Laplacian(imgFace,cv2.CV_64F).var())
+                offsetH = (offsetHratio/100)*h
 
-            # ---- Drawing ---- #
+                y = int(y - offsetH*3)
+                h = int(h + offsetH *3.5)
 
-            cv2.imshow("Face",imgFace)
-            cv2.rectangle(img,(x ,y, w, h),(255,0,0),3)
-            cvzone.putTextRect(img,f"Blur:{blurValue}",(x,y+20),2)
+                # ---- Avoiding values below 0 ---- #
+
+                if x < 0 : x = 0
+                if y < 0 : y = 0
+                if w < 0 : w = 0
+                if h < 0 : h = 0
+
+
+                # ---- Finding Bluriness ---- #
+                
+                imgFace = img[y:y+h,x:x+w]
+                blurValue = int(cv2.Laplacian(imgFace,cv2.CV_64F).var())
+
+                # ---- Drawing ---- #
+
+                cv2.imshow("Face",imgFace)
+                cv2.rectangle(img,(x ,y, w, h),(255,0,0),3)
+                cvzone.putTextRect(img,f"Blur:{blurValue}",(x,y+20),2)
 
 
 
