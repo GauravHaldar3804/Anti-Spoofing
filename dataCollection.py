@@ -5,9 +5,13 @@ import cvzone
 offsetWratio = 10
 offsetHratio = 20
 confidence = 80
+
+camWidth,camHeight = 640,480
     # Initialize the webcam
     # '2' means the third camera connected to the computer, usually 0 refers to the built-in webcam
 cap = cv2.VideoCapture(0)
+cap.set(3,camWidth)
+cap.set(4,camHeight)
 
     # Initialize the FaceDetector object
     # minDetectionCon: Minimum detection confidence threshold
@@ -65,11 +69,32 @@ while True:
                 imgFace = img[y:y+h,x:x+w]
                 blurValue = int(cv2.Laplacian(imgFace,cv2.CV_64F).var())
 
+                # ---- Normalization ---- #
+                iw , ih,_ = img.shape
+
+                xc = x + w/2
+                yc = y + h/2
+
+                xcn = round(xc/iw,6)
+                ycn = round(yc/ih,6)
+                wn = round(w/iw,6)
+                hn = round(h/ih,6)
+                
+
+                # ---- Avoiding values above 1 ---- #
+
+                if xcn > 1 : xcn = 1
+                if ycn > 1 : ycn = 1
+                if wn > 1 : wn = 1
+                if hn > 1 : hn = 1
+                print(xcn,ycn,wn,hn)
+
+
                 # ---- Drawing ---- #
 
                 cv2.imshow("Face",imgFace)
                 cv2.rectangle(img,(x ,y, w, h),(255,0,0),3)
-                cvzone.putTextRect(img,f"Blur:{blurValue}",(x,y+20),2)
+                cvzone.putTextRect(img,f"Score:{score}% Blur:{blurValue}",(x,y+20),scale=2,thickness=3)
 
 
 
